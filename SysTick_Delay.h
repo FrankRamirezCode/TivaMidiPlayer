@@ -10,8 +10,6 @@
  * In addition, it uses the Peripheral Internal Oscillator (PIOSC) 
  * as the clock source. The PIOSC provides 16 MHz which is then divided by 4. 
  * The timer is used for creating delays in either microseconds or milliseconds.
- *
- * @author Aaron Nanas
  */
  
 #include "TM4C123GH6PM.h"
@@ -29,6 +27,7 @@
  * @return None
  */
 void SysTick_Delay_Init(void);
+
 
 /**
  * @brief The SysTick_Delay1us function provides a blocking delay in microseconds using the SysTick timer.
@@ -66,4 +65,7 @@ void SysTick_Delay1ms(uint32_t delay_in_ms);
  *
  * @return None
  */
-void SysTick_Handler_1(void);
+void SysTick_Handler(void);
+
+uint32_t GetTick(void);
+

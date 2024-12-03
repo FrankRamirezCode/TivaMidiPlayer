@@ -1,5 +1,3 @@
-// File:  midi.h
-
 #include <stdint.h>
 
 typedef enum {
@@ -142,5 +140,3 @@ typedef struct
 
 
 extern const uint16_t Midi_NotePwmPeriods[]; 
-
-		

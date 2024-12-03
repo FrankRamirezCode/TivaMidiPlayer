@@ -64,7 +64,7 @@ void SysTick_Delay1ms(uint32_t delay_in_ms)
 	ms_active = 0x00;
 }
 
-void SysTick_Handler_1(void)
+void SysTick_Handler(void)
 {
 	// Increment the global variable, us_elapsed
 	us_elapsed = us_elapsed + 1;
@@ -79,3 +79,9 @@ void SysTick_Handler_1(void)
 		ms_elapsed = ms_elapsed + 1;
 	}
 }
+
+uint32_t GetTick(void)
+{	
+	return us_elapsed;
+}
+

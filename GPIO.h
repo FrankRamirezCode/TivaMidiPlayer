@@ -24,9 +24,6 @@ extern const uint8_t RGB_LED_RED;
 extern const uint8_t RGB_LED_BLUE;
 extern const uint8_t RGB_LED_GREEN;
 
-// Constant definitions for the EduBase board LEDs
-extern const uint8_t EDUBASE_LED_ALL_OFF;
-extern const uint8_t EDUBASE_LED_ALL_ON;
 
 /**
  * @brief The RGB_LED_Init function initializes the RGB LED (PF1 - PF3)
@@ -82,25 +79,3 @@ void RGB_LED_Output(uint8_t led_value);
  */
 uint8_t RGB_LED_Status(void);
 
-/**
- * @brief The EduBase_LEDs_Init function initializes the EduBase Board LEDs (LED0 - LED3)
- *
- * This function initializes the following EduBase Board LEDs, configures the digital functionality for the pins,
- * and sets the direction of the pins as output. The EduBase Board LEDs are off by default upon initialization.
- *  - LED0		(PB0)
- *  - LED1		(PB1)
- *  - LED2		(PB2)
- *  - LED3		(PB3)
- *
- * @param None
- *
- * @return None
- */
-
-extern void (*BTN_Task)(uint8_t pmod_btn_state);
-
-void Button_Init();
-
-uint8_t BTN_Read(void);
-
-void GPIOF_Handler(void);

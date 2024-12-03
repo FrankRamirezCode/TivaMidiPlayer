@@ -1,29 +1,41 @@
-//#ifndef PWM_H
-#define PWM_H
+
 
 #include <stdint.h>
 #include "TM4C123GH6PM.h"
 
-// PWM Module enumeration
-typedef enum {
+typedef enum 
+	{
     PWMModule0 = 0,
-    PWMModule1 = 1
-} PWMModule;
+    PWMModule1 = 1,
+	} PWMModule;
 
-// PWM Channel enumeration
-typedef enum {
-    PWM0_ = 0,  // Module 0: PB6 (M0PWM0)
-    PWM3 = 3,  // Module 0: PC4 (M0PWM6), Module 1: PF2 (M1PWM6)
-    PWM4 = 4   // Additional channel if needed
-} PWMChannel;
+typedef enum 
+	{
+    PWM0_ = 0,    // Note: Added underscore to avoid naming conflict
+		PWM3  = 3
+	} PWMChannel;
 
-// Function prototypes
-void PWM_SetClockDivisor(uint32_t divisor);
-void PWM_Configure(PWMModule module, PWMChannel channel, uint16_t period, uint16_t duty);
-void PWM_Enable(PWMModule module, PWMChannel channel);
-void PWM_Disable(PWMModule module, PWMChannel channel);
+void PWM_Clock_Init(void);
 
-//#endif
+void PWM0_0_Init(uint16_t period_constant, uint16_t duty_cycle);
+
+void PWM0_0_Update_Duty_Cycle(uint16_t duty_cycle);
+
+void PWM0_3_Init(uint16_t period_constant, uint16_t duty_cycle);
+
+void PWM0_3_Update_Duty_Cycle(uint16_t duty_cycle);
+
+void PWM1_0_Init(uint16_t period_constant, uint16_t duty_cycle);
+
+void PWM1_0_Update_Duty_Cycle(uint16_t duty_cycle);
+
+void PWM1_3_Init(uint16_t period_constant, uint16_t duty_cycle);
+
+void PWM1_3_Update_Duty_Cycle(uint16_t duty_cycle);
+
+void PWM_Disable(PWMModule pwmModule, PWMChannel pwmChannel);
+
+
 
 /**
 // PWM Module 0

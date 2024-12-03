@@ -1,19 +1,3 @@
-/**
- * @file PWM_Clock.c
- *
- * @brief Source file used to configure the PWM clock source.
- *
- * This file contains the function definitions for configuring the PWM clock.
- * It updates the RCC register from SYSCTL to update the PWM clock and use
- * the PWM clock divider as the source.
- *
- * When the PWM divisor is used, it is applied to the clock for both PWM modules.
- *
- * @note This driver assumes that the system clock's frequency is 50 MHz.
- *
- * @author Aaron Nanas
- */
- 
 #include "PWM.h"
 
 
@@ -140,4 +124,23 @@ PWM1->ENABLE |= 0x40;
 void PWM1_3_Update_Duty_Cycle(uint16_t duty_cycle)
 {
 PWM1->_3_CMPA = (duty_cycle - 1);
+}
+
+void PWM_Disable(PWMModule pwmModule, PWMChannel pwmChannel)
+{
+    switch(pwmModule) 
+			{
+        case PWMModule0:
+            if(pwmChannel == PWM0_) 
+                PWM0->ENABLE &= ~0x01;  // Disable PWM0_0
+            else if(pwmChannel == PWM3) 
+                PWM0->ENABLE &= ~0x40;  // Disable PWM0_3
+            break;
+        case PWMModule1:
+            if(pwmChannel == PWM0_) 
+                PWM1->ENABLE &= ~0x01;  // Disable PWM1_0
+            else if(pwmChannel == PWM3) 
+                PWM1->ENABLE &= ~0x40;  // Disable PWM1_3
+            break;
+			}
 }

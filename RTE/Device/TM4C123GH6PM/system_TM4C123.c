@@ -183,7 +183,7 @@
 // Set the following value to 1 to use the RCC2 register.  The RCC2 register
 // overrides some of the fields in the RCC register if it is used.
 //
-#define CFG_RCC2_USERCC2 1
+#define CFG_RCC2_USERCC2 0
 
 //      <o> SYSDIV2: System Clock Divisor <2-64>
 //          <i> Specifies the divisor used to generate the system clock from

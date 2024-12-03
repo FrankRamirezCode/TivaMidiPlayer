@@ -1,5 +1,3 @@
-// File:  midi.c
-
 #include <stdint.h>
 
 // These are musical notes converted to PWM periods at the chosen bus frequency of 80MHz.
@@ -8,7 +6,6 @@
 //    
 //		(80000000Hz / 64) / 261.63Hz = 4778
 //   
-// See https://pages.mtu.edu/~suits/notefreqs.html for note frequencies.
 //
 const uint16_t Midi_NotePwmPeriods[] = {
 		0,	//	

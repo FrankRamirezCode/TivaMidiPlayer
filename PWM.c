@@ -1,136 +1,164 @@
-#include <stdint.h>
-#include <assert.h>
-#include "TM4C123GH6PM.h"
 #include "PWM.h"
 
-// Private helper functions
-static void PWM_EnableClock(PWMModule module) {
-    // Enable PWM module clock
-    SYSCTL->RCGCPWM |= (1 << module);
-    
-    // Wait for clock to stabilize
-    while(!(SYSCTL->PRPWM & (1 << module))) {}
+
+ // Enables the Clock to be used for the PWM 
+void PWM_Clock_Init(void)
+{
+	
+
+// Enable the PWM clock divisor by setting the
+// USEPWMDIV bit (Bit 20) in the RCC register
+SYSCTL->RCC |= 0x00100000;
+
+// Clear the PWMDIV field (Bits 19 to 17) in the RCC register
+SYSCTL->RCC &= ~0x000E0000;
+
+// Divide the PWM clock frequency by 16 by writing 0x3
+// to the PWMDIV field (Bits 19 to 17)
+// Note: Only the upper 3 bits are read/write. 0110 (0x6) -> 011 (0x3)
+// Refer to page 255 of the TM4C123G Microcontroller Datasheet
+SYSCTL->RCC |= 0x00060000;
 }
 
-static void PWM_ConfigureGPIO(PWMModule module, PWMChannel channel) {
-    uint32_t gpioBase = 0;
-    uint32_t pin = 0;
-    uint32_t portClockBit = 0;
-    uint32_t pinMux = 0;
+
+// Enables PWM0_0 on pin PB6 aka M0PWM0
+void PWM0_0_Init(uint16_t period_constant, uint16_t duty_cycle)
+{	
+if (duty_cycle >= period_constant) return;
+SYSCTL->RCGCPWM |=  0x01;
+SYSCTL->RCGCGPIO |= 0x02;
+GPIOB->AFSEL |= 0x40;
+GPIOB->PCTL &= ~0x0F000000;
+GPIOB->PCTL |= 0x04000000;
+GPIOB->DEN |= 0x40;
+PWM0->_0_CTL &= ~0x01;
+PWM0->_0_CTL &= ~0x02;
+PWM0->_0_GENA |= 0xC0;
+PWM0->_0_GENA |= 0x08;
+//PWM0->_0_GENA = 0x0000008C;
+PWM0->_0_LOAD = (period_constant - 1);
+PWM0->_0_CMPA = (duty_cycle - 1);
+PWM0->_0_CTL |= 0x01;
+PWM0->ENABLE |= 0x01;
+}
+
+// Allows change of duty cycle
+void PWM0_0_Update_Duty_Cycle(uint16_t duty_cycle)
+{
+PWM0 -> _0_CMPA = (duty_cycle -1);
+}
+
+void PWM0_3_Init(uint16_t period_constant, uint16_t duty_cycle) // PC5
+{    
+    if (duty_cycle >= period_constant) return;
     
-    switch(module) {
+    SYSCTL->RCGCPWM |= 0x01;     // Enable PWM0 module
+    SYSCTL->RCGCGPIO |= 0x04;    // Enable Port C
+    
+    // Configure PC5
+    GPIOC->AFSEL |= 0x20;        // Enable alternate function on PC5
+    GPIOC->PCTL &= ~0x00F00000;  // Clear PC5 bits
+    GPIOC->PCTL |= 0x00400000;   // Set PC5 to PWM function
+    GPIOC->DEN |= 0x20;          // Enable digital I/O on PC5
+    
+    PWM0->_3_CTL &= ~0x01;       // Disable PWM
+    PWM0->_3_CTL &= ~0x02;       // Count down mode
+    PWM0->_3_GENB |= 0xC0;       // Set actions at load
+    PWM0->_3_GENB |= 0x08;       // Set actions at zero
+    PWM0->_3_LOAD = (period_constant - 1);
+    PWM0->_3_CMPB = (duty_cycle - 1);
+    PWM0->_3_CTL |= 0x01;        // Enable PWM generator
+    PWM0->ENABLE |= 0x80;        // Enable PWM output (bit 7 for M0PWM7)
+}
+
+void PWM0_3_Update_Duty_Cycle(uint16_t duty_cycle)
+{
+    PWM0->_3_CMPB = (duty_cycle - 1);
+}
+
+// Enables PWM1_0 on pin PD0 aka M1PWM0
+void PWM1_0_Init(uint16_t period_constant, uint16_t duty_cycle)
+{	
+if (duty_cycle >= period_constant) return;
+SYSCTL->RCGCPWM |=  0x02;
+SYSCTL->RCGCGPIO |= 0x08;
+GPIOD->AFSEL |= 0x01;
+GPIOD->PCTL &= ~0x000000F;
+GPIOD->PCTL |= 0x000005;
+GPIOD->DEN |= 0x01;
+PWM1->_0_CTL &= ~0x01;
+PWM1->_0_CTL &= ~0x02;
+PWM1->_0_GENA |= 0xC0;
+PWM1->_0_GENA |= 0x08;
+//PWM1->_0_GENA = 0x0000008C;
+PWM1->_0_LOAD = (period_constant - 1);
+PWM1->_0_CMPA = (duty_cycle - 1);
+PWM1->_0_CTL |= 0x01;
+PWM1->ENABLE |= 0x01;
+}
+
+// Allows change of duty cycle
+void PWM1_0_Update_Duty_Cycle(uint16_t duty_cycle)
+{
+PWM1->_0_CMPA = (duty_cycle - 1);
+}
+
+// Enables PWM1_3 on pin PF2
+
+void PWM1_3_Init(uint16_t period_constant, uint16_t duty_cycle)
+{	
+if (duty_cycle >= period_constant) return;
+SYSCTL->RCGCPWM |=  0x02;
+SYSCTL->RCGCGPIO |= 0x20;
+GPIOF->AFSEL |= 0x04;
+GPIOF->PCTL &= ~0x00000F00;
+GPIOF->PCTL |= 0x00000500;
+GPIOF->DEN |= 0x04;
+PWM1->_3_CTL &= ~0x01;
+PWM1->_3_CTL &= ~0x02;
+PWM1->_3_GENA |= 0xC0;
+PWM1->_3_GENA |= 0x08;
+//PWM1->_3_GENA = 0x0000008C;
+PWM1->_3_LOAD = (period_constant - 1);
+PWM1->_3_CMPA = (duty_cycle - 1);
+PWM1->_3_CTL |= 0x01;
+PWM1->ENABLE |= 0x40;
+}
+
+// Allows change of duty cycle
+void PWM1_3_Update_Duty_Cycle(uint16_t duty_cycle)
+{
+PWM1->_3_CMPA = (duty_cycle - 1);
+}
+
+
+void PWM_Disable(PWMModule pwmModule, PWMChannel pwmChannel)
+{
+    switch(pwmModule) 
+    {
         case PWMModule0:
-            switch(channel) {
-                case PWM0_:  // PB6
-                    gpioBase = (uint32_t)GPIOB;
-                    pin = 6;
-                    portClockBit = 1;  // PORTB
-                    pinMux = 4;        // PWM function
-                    break;
-                case PWM3:  // PC4
-                    gpioBase = (uint32_t)GPIOC;
-                    pin = 4;
-                    portClockBit = 2;  // PORTC
-                    pinMux = 4;
-                    break;
-                default:
-                    return;
+            if(pwmChannel == PWM0_) 
+            {
+                PWM0->ENABLE &= ~0x01;  // Disable PWM0_0
+                PWM0->_0_CTL &= ~0x01;  // Stop the generator
+            }
+            else if(pwmChannel == PWM3) 
+            {
+                PWM0->ENABLE &= ~0x40;  // Disable PWM0_3
+                PWM0->_3_CTL &= ~0x01;  // Stop the generator
             }
             break;
-            
         case PWMModule1:
-            switch(channel) {
-                case PWM3:  // PF2
-                    gpioBase = (uint32_t)GPIOF;
-                    pin = 2;
-                    portClockBit = 5;  // PORTF
-                    pinMux = 5;
-                    break;
-                default:
-                    return;
+            if(pwmChannel == PWM0_) 
+            {
+                PWM1->ENABLE &= ~0x01;  // Disable PWM1_0
+                PWM1->_0_CTL &= ~0x01;  // Stop the generator
+            }
+            else if(pwmChannel == PWM3) 
+            {
+                PWM1->ENABLE &= ~0x40;  // Disable PWM1_3
+                PWM1->_3_CTL &= ~0x01;  // Stop the generator
             }
             break;
     }
-    
-    // Enable GPIO port clock
-    SYSCTL->RCGCGPIO |= (1 << portClockBit);
-    while(!(SYSCTL->PRGPIO & (1 << portClockBit))) {}
-    
-    // Configure GPIO
-    volatile uint32_t *gpio = (volatile uint32_t *)gpioBase;
-    gpio[0x420/4] |= (1 << pin);              // AFSEL
-    gpio[0x52C/4] &= ~(0xF << (pin * 4));     // PCTL clear
-    gpio[0x52C/4] |= (pinMux << (pin * 4));   // PCTL set
-    gpio[0x51C/4] |= (1 << pin);              // DEN
-}
-
-void PWM_SetClockDivisor(uint32_t divisor) {
-    // Enable PWM clock divisor
-    SYSCTL->RCC |= (1 << 20);  // USEPWMDIV
-    
-    // Clear existing divisor
-    SYSCTL->RCC &= ~(7 << 17);
-    
-    // Set new divisor (0==/1, 1==/2, 2==/4, 3==/8, 4==/16, 5==/32, 6==/64)
-    uint32_t divValue = 0;
-    switch(divisor) {
-        case 2: divValue = 1; break;
-        case 4: divValue = 2; break;
-        case 8: divValue = 3; break;
-        case 16: divValue = 4; break;
-        case 32: divValue = 5; break;
-        case 64: divValue = 6; break;
-        default: divValue = 0; break;
-    }
-    SYSCTL->RCC |= (divValue << 17);
-}
-
-void PWM_Configure(PWMModule module, PWMChannel channel, uint16_t period, uint16_t duty) {
-    if (duty >= period) return;
-    
-    PWM_EnableClock(module);
-    PWM_ConfigureGPIO(module, channel);
-    
-    volatile uint32_t *pwmBase = (module == PWMModule0) ? (volatile uint32_t *)PWM0 : (volatile uint32_t *)PWM1;
-    uint32_t channelOffset = channel * 0x040;
-    
-    // Disable generator
-    pwmBase[(0x040 + channelOffset)/4] &= ~1;  // _n_CTL
-    
-    // Configure generator
-    pwmBase[(0x040 + channelOffset)/4] &= ~2;  // Down count mode
-    pwmBase[(0x060 + channelOffset)/4] = 0xC8; // _n_GENA: High on load, Low on CMPA
-    pwmBase[(0x050 + channelOffset)/4] = period - 1;  // _n_LOAD
-    pwmBase[(0x058 + channelOffset)/4] = duty - 1;    // _n_CMPA
-    
-    // Enable generator
-    pwmBase[(0x040 + channelOffset)/4] |= 1;
-}
-
-void PWM_Enable(PWMModule module, PWMChannel channel) {
-    volatile uint32_t *pwmBase = (module == PWMModule0) ? (volatile uint32_t *)PWM0 : (volatile uint32_t *)PWM1;
-    uint32_t enableBit;
-    
-    // Map channel to enable bit
-    switch(channel) {
-        case PWM0_: enableBit = 0x01; break;
-        case PWM3: enableBit = 0x40; break;
-        default: return;
-    }
-    
-    pwmBase[0x008/4] |= enableBit;  // ENABLE
-}
-
-void PWM_Disable(PWMModule module, PWMChannel channel) {
-    volatile uint32_t *pwmBase = (module == PWMModule0) ? (volatile uint32_t *)PWM0 : (volatile uint32_t *)PWM1;
-    uint32_t enableBit;
-    
-    // Map channel to enable bit
-    switch(channel) {
-        case PWM0_: enableBit = 0x01; break;
-        case PWM3: enableBit = 0x40; break;
-        default: return;
-    }
-    
-    pwmBase[0x008/4] &= ~enableBit;  // ENABLE
 }
